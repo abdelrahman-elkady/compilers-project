@@ -1,0 +1,65 @@
+import java.lang.System;
+import java.io.*;
+
+class Lexer {
+
+	Yylex tokenizer;
+	public  Lexer(String fileName) 
+	{
+	  try
+	  {
+	  tokenizer=new Yylex(new BufferedReader(new FileReader(fileName)));
+	  }
+	  catch(Exception e)
+	  {
+	  
+	  }	 
+	}
+	public Token nextToken()
+	{
+		Token next=null;
+		try
+		{
+		 next=  tokenizer.getToken();
+		}
+		catch(Exception e)
+		{
+		}
+		return next;
+	}
+	}
+
+
+%%
+
+
+%function getToken
+%type Token
+%char
+%line
+
+
+%{
+	//initialize  variables to be used by class
+%}
+
+
+%init{
+
+//Add code to be executed on initialization of the lexer
+
+%init}
+
+%eofval{
+  INT_LIT=(([1-9]([0-9])*)|0)
+  NEWLINE=\n
+%eofval}
+
+INT_LIT=(([1-9]([0-9])*)|0)
+NEWLINE=\n
+%% 
+<YYINITIAL> {INT_LIT} {return (new Token(Token.INT_LIT,yytext()));}
+<YYINITIAL> {NEWLINE} {}
+<YYINITIAL> . {
+  return new Token(Token.ERROR, "Invalid input: " + yytext());
+}
