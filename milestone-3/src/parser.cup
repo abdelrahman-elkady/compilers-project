@@ -320,72 +320,10 @@ typeName	::=	IDENTIFIER
 				:};
 
 
-typeLit	::=	arrayType
+typeLit	::=	functionType
 			{:
 			:}
-			| structType
-			{:
-			:}
-			| functionType
-			{:
-			:}
-			| sliceType
-			{:
-			:};
-			
-
-sliceType	::= OPEN_SQUARE CLOSE_SQUARE elementType
-				{:
-				:};
-
-arrayType	::=	OPEN_SQUARE arrayLength CLOSE_SQUARE elementType
-				{:
-				:};
-
-
-arrayLength	::= expression
-				{:
-				:};
-
-
-elementType	::=	type
-				{:
-				:};
-
-
-structType	::=	STRUCT OPEN_CURLY fieldDecls CLOSE_CURLY
-				{:
-				:};
-
-
-fieldDecls	::=	fieldDecl SEMI_COLON fieldDecls
-				{:
-				:}
-				| 
-				{:
-				:};
-
-
-fieldDecl	::= identifierList type
-				{:
-				:}
-				| identifierList type tag
-				{:
-				:}
-				| anonymousField
-				{:
-				:}
-				| anonymousField tag
-				{:
-				:};
-
-
-anonymousField	::=	typeName
-					{:
-					:}
-					| ASTRISK typeName
-					{:
-					:};
+			;
 
 
 tag	::= STRING_LIT

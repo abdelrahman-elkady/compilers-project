@@ -115,7 +115,7 @@ SPACES=(\t|\b|\ )+
  return new Symbol(sym.STRING_LIT, yytext());
 }
 <YYINITIAL, paran, curly, square> {INTLIT} {
- return new Symbol(sym.INT_LIT, yytext());
+ return new Symbol(sym.INTLIT, yytext());
 }
 <YYINITIAL, paran, curly, square> {NEWLINE} {
 }

@@ -17,6 +17,7 @@ public class sym {
   public static final int FOR = 13;
   public static final int MINUS = 20;
   public static final int BAR = 37;
+  public static final int INTLIT = 48;
   public static final int TYPE = 12;
   public static final int OPEN_PARAN = 21;
   public static final int ASTRISK = 34;
@@ -50,7 +51,6 @@ public class sym {
   public static final int DEFAULT = 3;
   public static final int STRUCT = 6;
   public static final int STRING_LIT = 47;
-  public static final int INT_LIT = 48;
   public static final int SHIFT_RIGHT = 36;
   public static final int VAR = 16;
   public static final int COLON_EQUAL = 31;
@@ -104,7 +104,7 @@ public class sym {
   "IDENTIFIER",
   "REL_OP",
   "STRING_LIT",
-  "INT_LIT"
+  "INTLIT"
   };
 }
 

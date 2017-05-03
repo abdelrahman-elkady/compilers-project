@@ -11,7 +11,7 @@ public class AP {
 	public static void main(String[] args) {
 
 		String inFile = "data/Go1.in";
-		String outFile = "data/Go1.out";
+		String outFile = "data/Go122.out";
 
 		if (args.length > 1) {
 			inFile = args[0];
