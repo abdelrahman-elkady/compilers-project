@@ -588,8 +588,9 @@ element	::= expression
 			{:
 			:};
 
-basicLit	::=	INTLIT
+basicLit	::=	INTLIT:int_lit
 				{:
+				    RESULT = int_lit;
 				:}
 				| STRING_LIT:s
 				{:
