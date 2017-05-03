@@ -5,6 +5,15 @@ parser code {:
     StringBuilder output = new StringBuilder("");
     int tempVariableCounter = 0;
 
+    void outputWithLinebreak(String str) {
+        output.append(str);
+        output.append(System.getProperty("line.separator"));
+    }
+
+    void generateAssignmentStatement(Object id, Object expression) {
+        outputWithLinebreak(String.format("%s = %s", id.toString(), expression.toString()));
+    }
+
     String generateOutput() {
         return output.toString();
     }
@@ -19,7 +28,7 @@ terminal			BREAK, DEFAULT, FUNC, CASE, STRUCT, ELSE, PACKAGE, SWITCH, CONST, IF,
 					SEMI_COLON, COMMA, DOT, COLON, COLON_EQUAL, EQUAL, CDOTS, ASTRISK, 
 					SHIFT_LEFT, SHIFT_RIGHT, BAR, SLASH, EXCLAMATION, LESS_DASH, AMBERSAND,
 					PERCENT, INCREMENT, DECREMENT;
-terminal	String	IDENTIFIER, REL_OP, STRING_LIT, INTLIT;	
+terminal	String	IDENTIFIER, REL_OP, STRING_LIT, INTLIT;
 
 /* Non-terminals */
 nonterminal	sourceFile, packageClause, importDecls, importDecl, topLevelDecls,
@@ -107,12 +116,13 @@ constSpecs	::=	constSpec SEMI_COLON constSpecs
 constSpec	::=	IDENTIFIER
 				{:
 				:}
-				| IDENTIFIER EQUAL expression
+				| IDENTIFIER:id EQUAL expression:exp
 				{:
+				    generateAssignmentStatement(id, exp);
 				:}
-				| IDENTIFIER:id_name type EQUAL expression
+				| IDENTIFIER:id type EQUAL expression:exp
 				{:
-				    output.append(id_name);
+				    generateAssignmentStatement(id, exp);
 				:};
 				
 				
@@ -310,8 +320,9 @@ expressionList	::=	expression
 					:};
 
 
-expression	::=	unaryExpr
+expression	::=	unaryExpr:e
 				{:
+				    RESULT = e;
 				:}
 				| expression binaryOp expression
 				{:
@@ -409,15 +420,17 @@ methodName	::=	IDENTIFIER
 				:};
 
 
-unaryExpr	::=	primaryExpr
+unaryExpr	::=	primaryExpr:pexp
 				{:
+                    RESULT = pexp;
 				:}
-				| unaryOp unaryExpr
+				| unaryOp unaryExpr:uexp
 				{:
 				:};
 
-primaryExpr	::=	operand
+primaryExpr	::=	operand:op
 				{:
+				    RESULT = op;
 				:}
 				| primaryExpr selector
 				{:
@@ -485,8 +498,9 @@ receiverType	::=	OPEN_PARAN ASTRISK typeName CLOSE_PARAN
 					{:
 					:};
 
-operand	::=	literal
+operand	::=	literal:l
 			{:
+			    RESULT = l;
 			:}
 			| operandName
 			{:
@@ -498,8 +512,9 @@ operand	::=	literal
 			{:
 			:};
 
-literal	::=	basicLit
+literal	::=	basicLit:l
 			{:
+			    RESULT = l;
 			:}
 			| functionLit
 			{:
@@ -576,8 +591,9 @@ element	::= expression
 basicLit	::=	INTLIT
 				{:
 				:}
-				| STRING_LIT 
+				| STRING_LIT:s
 				{:
+				    RESULT = s;
 				:};
 
 operandName	::=	IDENTIFIER

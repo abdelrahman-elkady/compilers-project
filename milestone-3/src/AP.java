@@ -31,6 +31,7 @@ public class AP {
 				System.out.println(x.value.toString());
 				writer.write("Done");
 			} catch (Exception e) {
+				e.printStackTrace();
 				writer.write("ParseError");
 			}
 
