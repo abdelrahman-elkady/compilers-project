@@ -10,8 +10,8 @@ public class AP {
 
 	public static void main(String[] args) {
 
-		String inFile = "data/Go1.in";
-		String outFile = "data/Go122.out";
+		String inFile = "data/safe.in";
+		String outFile = "data/safe.out";
 
 		if (args.length > 1) {
 			inFile = args[0];

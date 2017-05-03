@@ -1,4 +1,9 @@
+#!/bin/sh
 
 java -jar java-cup-11b.jar parser.cup
-java JLex.Main Lexer
-java AP
+javac JLex.Main.java  && java JLex.Main Lexer
+cp ../data/Go"$1".in ../data/safe.in
+
+echo '\n\n'
+echo '========================================= Now Run AP.java on safe.in ========================================='
+echo '\n\n'
