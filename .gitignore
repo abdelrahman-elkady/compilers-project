@@ -25,6 +25,8 @@ Milestone2_23717.zip
 .idea/**/tasks.xml
 .idea/dictionaries
 
+workspace.xml
+
 # Sensitive or high-churn files:
 .idea/**/dataSources/
 .idea/**/dataSources.ids

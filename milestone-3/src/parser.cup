@@ -69,9 +69,6 @@ topLevelDecl	::=	declaration
 declaration	::=	constDecl SEMI_COLON
 				{:
 				:}
-				| typeDecl optionalSemiColon
-				{:
-				:}
 				| varDecl SEMI_COLON
 				{:
 				:};
