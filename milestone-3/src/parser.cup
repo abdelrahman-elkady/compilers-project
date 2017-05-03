@@ -14,6 +14,16 @@ parser code {:
         outputWithLinebreak(String.format("%s = %s", id.toString(), expression.toString()));
     }
 
+    String generateTempVariable() {
+        return "t" + tempVariableCounter++;
+    }
+
+    void appendTACExpression(Object tempName, Object leftExpr, Object operator, Object rightExpr) {
+        String exp = String.format("%s = %s%s%s", tempName.toString(), leftExpr.toString(), operator.toString(), rightExpr.toString());
+
+        outputWithLinebreak(exp);
+    }
+
     String generateOutput() {
         return output.toString();
     }
@@ -177,8 +187,12 @@ incDecStmt	::= expression INCREMENT
 				{:
 				:};
 
-assignment	::=	expressionList assignOp expressionList
+assignment	::=	expressionList:l1 assignOp:op expressionList:l2
 				{:
+				    // ArrayList<String> expList1 = (ArrayList) l1;
+				    // ArrayList<String> expList2 = (ArrayList) l2;
+
+				    // RESULT = l1.toString() + op.toString() + l2.toString();
 				:};
 
 
@@ -320,14 +334,82 @@ expressionList	::=	expression
 					:};
 
 
-expression	::=	unaryExpr:e
+expression	::=	unaryExpr:ue
 				{:
-				    RESULT = e;
+				    RESULT = ue;
 				:}
-				| expression binaryOp expression
+				| expression:el REL_OP:op expression:er
 				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
+				:}
+				| expression:el OR_OP:op expression:er
+				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
+				:}
+				| expression:el AND_OP:op expression:er
+				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
+				:}
+				| expression:el PLUS:op expression:er
+				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
+				:}
+				| expression:el MINUS:op expression:er
+				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
+				:}
+				| expression:el ASTRISK:op expression:er
+				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
+				:}
+				| expression:el SLASH:op expression:er
+				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
+				:}
+				| expression:el PERCENT:op expression:er
+				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
+				:}
+				| expression:el SHIFT_LEFT:op expression:er
+				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
+				:}
+				| expression:el SHIFT_RIGHT:op expression:er
+				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
+				:}
+				| expression:el AMBERSAND:op expression:er
+				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
+				:}
+				| expression:el EXCLAMATION:op expression:er
+				{:
+				    t = generateTempVariable();
+                    appendTACExpression(t, el, op, er);
+                    RESULT = t;
 				:};
-
 
 type	::= typeName
 			{:

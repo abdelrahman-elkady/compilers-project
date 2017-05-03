@@ -7,3 +7,5 @@ cp ../data/Go"$1".in ../data/safe.in
 echo '\n\n'
 echo '========================================= Now Run AP.java on safe.in ========================================='
 echo '\n\n'
+
+rm -rf **/*.class
