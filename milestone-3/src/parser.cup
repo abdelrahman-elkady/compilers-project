@@ -420,8 +420,9 @@ type	::= typeName
 			:};
 
 
-typeName	::=	IDENTIFIER
+typeName	::=	IDENTIFIER:id
 				{:
+				    RESULT = id;
 				:};
 
 
@@ -515,8 +516,9 @@ primaryExpr	::=	operand:op
 				{:
 				    RESULT = op;
 				:}
-				| primaryExpr selector
+				| primaryExpr:pexp selector:sel
 				{:
+				    RESULT = pexp.toString() + sel.toString();
 				:}
 				| primaryExpr index
 				{:
@@ -585,11 +587,13 @@ operand	::=	literal:l
 			{:
 			    RESULT = l;
 			:}
-			| operandName
+			| operandName:op_name
 			{:
+			    RESULT = op_name;
 			:}
-			| methodExpr
+			| methodExpr:mexpr
 			{:
+			    RESULT = mexpr;
 			:}
 			| OPEN_PARAN expression CLOSE_PARAN
 			{:
@@ -680,16 +684,19 @@ basicLit	::=	INTLIT:int_lit
 				    RESULT = s;
 				:};
 
-operandName	::=	IDENTIFIER
+operandName	::=	IDENTIFIER:id
 				{:
+				    RESULT = id;
 				:}
-				| qualifiedIdent
+				| qualifiedIdent:q_id
 				{:
+				    RESULT = q_id;
 				:};
 
 
-qualifiedIdent	::=	DOT packageName DOT IDENTIFIER
+qualifiedIdent	::=	DOT packageName DOT IDENTIFIER:id
 					{:
+					    RESULT = id;
 					:};
 					
 					
@@ -810,80 +817,103 @@ optionalSemiColon	::=	SEMI_COLON
 						:};
 
 
-assignOp	::=	addOp EQUAL 
+assignOp	::=	addOp:o EQUAL:e
 				{:
+				    RESULT = o.toString() + " " + e.toString();
 				:} %prec EQUAL
-				| mulOp EQUAL
+				| mulOp:o EQUAL:e
 				{:
+				    RESULT = o.toString() + " " + e.toString();
 				:} %prec EQUAL
-				| EQUAL
+				| EQUAL:e
 				{:
+				    RESULT = e;
 				:};
 
 
-binaryOp	::= OR_OP
+binaryOp	::= OR_OP:o
 				{:
+				    RESULT = o;
 				:}
-				| AND_OP
+				| AND_OP:o
 				{:
+				    RESULT = o;
 				:}
-				| REL_OP
+				| REL_OP:o
 				{:
+				    RESULT = o;
 				:}
-				| addOp
+				| addOp:o
 				{:
+				    RESULT = o;
 				:}
-				| mulOp
+				| mulOp:o
 				{:
+				    RESULT = o;
 				:};
 
-addOp	::=	PLUS
+addOp	::=	PLUS:o
 			{:
+			    RESULT = o;
 			:}
-			| MINUS
+			| MINUS:o
 			{:
+			    RESULT = o;
 			:}
-			| BAR
+			| BAR:o
 			{:
+			    RESULT = o;
 			:};
 
 
-mulOp	::=	ASTRISK
+mulOp	::=	ASTRISK:o
 			{:
+			    RESULT = o;
 			:}
-			| SLASH
+			| SLASH:o
 			{:
+			    RESULT = o;
 			:}
-			| SHIFT_LEFT
+			| SHIFT_LEFT:o
 			{:
+			    RESULT = o;
 			:}
-			| SHIFT_RIGHT
+			| SHIFT_RIGHT:o
 			{:
+			    RESULT = o;
 			:}
-			| PERCENT
+			| PERCENT:o
 			{:
+			    RESULT = o;
 			:}
-			| AMBERSAND
+			| AMBERSAND:o
 			{:
+			    RESULT = o;
 			:};
 
 
-unaryOp	::=	PLUS
+unaryOp	::=	PLUS:o
 			{:
+			    RESULT = o;
 			:}
-			| MINUS
+			| MINUS:o
 			{:
+			    RESULT = o;
 			:}
-			| EXCLAMATION
+			| EXCLAMATION:o
 			{:
+			    RESULT = o;
 			:}
-			| ASTRISK
+			| ASTRISK:o
 			{:
+			    RESULT = o;
 			:}
-			| AMBERSAND
+			| AMBERSAND:o
 			{:
+			    RESULT = o;
 			:}
-			| LESS_DASH
+			| LESS_DASH:o
 			{:
+			    RESULT = o;
 			:};						
 						
