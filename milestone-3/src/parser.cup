@@ -1,5 +1,16 @@
 import java.io.*;
 
+
+parser code {:
+    StringBuilder output = new StringBuilder("");
+    int tempVariableCounter = 0;
+
+    String generateOutput() {
+        return output.toString();
+    }
+:}
+
+
 	
 /* Terminals (tokens returned by the scanner). */
 terminal			BREAK, DEFAULT, FUNC, CASE, STRUCT, ELSE, PACKAGE, SWITCH, CONST, IF, 
@@ -44,9 +55,11 @@ start with sourceFile;
 /* The grammar */
 sourceFile	::=	packageClause optionalSemiColon importDecls topLevelDecls
 				{:
+				    RESULT = generateOutput();
 				:}
 				| packageClause optionalSemiColon importDecls
 				{:
+				    RESULT = generateOutput();
 				:};
 
 topLevelDecls	::=	topLevelDecl topLevelDecls
@@ -97,8 +110,9 @@ constSpec	::=	IDENTIFIER
 				| IDENTIFIER EQUAL expression
 				{:
 				:}
-				| IDENTIFIER type EQUAL expression
+				| IDENTIFIER:id_name type EQUAL expression
 				{:
+				    output.append(id_name);
 				:};
 				
 				

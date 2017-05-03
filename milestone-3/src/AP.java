@@ -1,4 +1,6 @@
 
+import java_cup.runtime.Symbol;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
@@ -25,7 +27,8 @@ public class AP {
 			parser parser = new parser(new Lexer(bis));
 
 			try {
-				parser.parse();
+				Symbol x = parser.parse();
+				System.out.println(x.value.toString());
 				writer.write("Done");
 			} catch (Exception e) {
 				writer.write("ParseError");
