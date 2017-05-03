@@ -1,7 +1,7 @@
 #!/bin/sh
 
 java -jar java-cup-11b.jar parser.cup
-javac JLex.Main.java  && java JLex.Main Lexer
+javac JLex/Main.java  && java JLex.Main Lexer
 cp ../data/Go"$1".in ../data/safe.in
 
 echo '\n\n'
