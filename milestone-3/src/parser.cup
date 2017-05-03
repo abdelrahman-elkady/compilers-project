@@ -334,27 +334,6 @@ functionType	::=	FUNC signature
 					:};
 
 
-typeDecl	::=	TYPE typeSpec
-				{:
-				:}
-				| TYPE OPEN_PARAN typeSpecs CLOSE_PARAN
-				{:
-				:};
-
-typeSpecs	::=	typeSpec SEMI_COLON typeSpecs
-				{:
-				:}
-				| 
-				{:
-				:};
-
-
-typeSpec	::=	IDENTIFIER type
-				{:
-				:};
-
-
-
 varDecl	::=	VAR varSpec 
 			{:
 			:}
