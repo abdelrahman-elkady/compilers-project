@@ -24,6 +24,11 @@ parser code {:
         outputWithLinebreak(exp);
     }
 
+    void appendFunctionBegin(Object functionName) {
+        outputWithLinebreak(String.format("%s:", functionName.toString()));
+        outputWithLinebreak("begin_func;");
+    }
+
     String generateOutput() {
         return output.toString();
     }
@@ -482,8 +487,9 @@ functionDecl	::= FUNC functionName function
 					{:
 					:};
 
-functionName	::= IDENTIFIER
+functionName	::= IDENTIFIER:fname
 					{:
+                        appendFunctionBegin(fname);
 					:};
 
 
