@@ -482,9 +482,11 @@ shortVarDecl	::= identifierList	COLON_EQUAL	expression
 
 functionDecl	::= FUNC functionName function
 					{:
+					    outputWithLinebreak("end_func;");
 					:}
 					| FUNC functionName signature
 					{:
+					    outputWithLinebreak("end_func;");
 					:};
 
 functionName	::= IDENTIFIER:fname
