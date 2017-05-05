@@ -285,11 +285,21 @@ expressionStmt	::= expression:e
 						RESULT = (((Container) e).getAssem());
 					:};
 
-incDecStmt	::= expression INCREMENT
+incDecStmt	::= expression:e INCREMENT
 				{:
+					Container con = (Container) e;
+					String assem = con.getAssem();
+					if(!assem.equals(""))
+						assem += "\n";
+					RESULT = assem + con.getVal() + " + 1";
 				:}
-				| expression DECREMENT
+				| expression:e DECREMENT
 				{:
+					Container con = (Container) e;
+					String assem = con.getAssem();
+					if(!assem.equals(""))
+						assem += "\n";
+					RESULT = assem + con.getVal() + " - 1";
 				:};
 
 assignment	::=	expressionList:l1 assignOp:op expressionList:l2
@@ -456,11 +466,11 @@ forStmt	::=	FOR block
 				Container con = (Container) c;
 				con.setThenL(generateLabel());
 				con.setElseL(generateLabel());
-				RESULT = "LOOP:\n"+s+";\n"+con.getThenL() + ":\n";
+				RESULT = s+";\n"+con.getThenL() + ":\n";
 				if(!con.getAssem().equals("")) {
 					RESULT += con.getAssem(); 
 				}
-				RESULT += "Ifz " +  con.getVal()+" Goto " + con.getElseL() + ";\n";
+				RESULT += "IfZ " +  con.getVal()+" Goto " + con.getElseL() + ";\n";
 				RESULT+= b+"\n";
 				RESULT += p + ";\n";
 				RESULT += "\nGoto " + con.getThenL() + "\n";
@@ -473,11 +483,11 @@ forClause	::=	initStmt:s SEMI_COLON condition:c SEMI_COLON postStmt:p
 					Container con = (Container) c;
 					con.setThenL(generateLabel());
 					con.setElseL(generateLabel());
-					RESULT = "LOOP:\n"+s+";\n"+con.getThenL() + ":\n";
+					RESULT = s+";\n"+con.getThenL() + ":\n";
 					if(!con.getAssem().equals("")) {
 						RESULT += con.getAssem(); 
 					}
-					RESULT += "Ifz " + con.getVal()+";";
+					RESULT += "IfZ " + con.getVal()+";";
 					RESULT += "\nGoto " + con.getElseL() + "\n";
 					RESULT += p + ";\n";
 					RESULT += "\nGoto " + con.getThenL() + "\n";
