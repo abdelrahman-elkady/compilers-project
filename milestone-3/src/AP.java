@@ -28,8 +28,7 @@ public class AP {
 
 			try {
 				Symbol x = parser.parse();
-				System.out.println(x.value.toString());
-				writer.write("Done");
+				writer.write(x.value.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
 				writer.write("ParseError");
