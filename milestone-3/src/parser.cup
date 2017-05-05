@@ -133,12 +133,13 @@ nonterminal	sourceFile, packageClause, importDecls, importDecl, topLevelDecls,
 					literalType, literalValue, elementList, keyedElement, key, fieldName,
 					element;
 
-precedence left COMMA;
-precedence left EQUAL, COLON_EQUAL;
 precedence left OR_OP, AND_OP, REL_OP;
-precedence left MINUS, PLUS, BAR;
+precedence left PLUS, MINUS, BAR;
 precedence left ASTRISK, SLASH, SHIFT_LEFT, SHIFT_RIGHT, PERCENT, AMBERSAND;
-
+precedence left EXCLAMATION, LESS_DASH;
+precedence left OPEN_PARAN, CLOSE_PARAN;
+precedence left COMMA, SEMI_COLON;
+precedence left COLON;
 /*
 precedence left OR_OP, AND_OP;
 precedence left REL_OP;
@@ -155,7 +156,6 @@ start with sourceFile;
 sourceFile	::=	packageClause optionalSemiColon importDecls topLevelDecls:decs
 				{:
 				    RESULT = decs;
-				    System.out.println(RESULT);
 				:}
 				| packageClause optionalSemiColon importDecls
 				{:
@@ -230,7 +230,6 @@ constSpec	::=	IDENTIFIER:id
 				:}
 				| IDENTIFIER:id type:t EQUAL expression:exp
 				{:
-					//System.out.println(generateDecOutput(exp, id, t));
 				    RESULT = generateDecOutput(exp, id, t);
 				:};
 
@@ -259,7 +258,7 @@ statement	::=	declaration:dec
 				:}
 				| ifStmt:ifStat optionalSemiColon
 				{:
-					System.out.println("Engz12: " + ifStat);
+					//System.out.println("Engz12: " + ifStat);
 					RESULT = ifStat;
 				:}
 				| switchStmt: optionalSemiColon
@@ -558,6 +557,54 @@ expression	::=	unaryExpr:ue
 				{:
 				    RESULT = ue;
 				:}
+				| expression:el REL_OP:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+				:}
+				| expression:el OR_OP:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+				:}
+				| expression:el AND_OP:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+				:}
+				| expression:el PLUS:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+				:}
+				| expression:el MINUS:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+				:}
+				| expression:el ASTRISK:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+				:}
+				| expression:el SLASH:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+				:}
+				| expression:el PERCENT:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+				:}
+				| expression:el SHIFT_LEFT:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+				:}
+				| expression:el SHIFT_RIGHT:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+				:}
+				| expression:el AMBERSAND:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+				:}
+				| expression:el EXCLAMATION:op expression:er
+				{:
+                    RESULT = generateExContainer(el, er, op);
+                :}
 				| expression:el binaryOp:op expression:er
 				{:
 					//System.out.println("Operator " + op.toString());
