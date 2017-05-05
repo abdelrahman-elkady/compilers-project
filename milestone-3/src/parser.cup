@@ -17,6 +17,9 @@ parser code {:
     String generateTempVariable() {
         return "t" + tempVariableCounter++;
     }
+    String generateLabel() {
+        return "L" + labelCounter++;
+    }
 
     void appendTACExpression(Object tempName, Object leftExpr, Object operator, Object rightExpr) {
         String exp = String.format("%s = %s%s%s", tempName.toString(), leftExpr.toString(), operator.toString(), rightExpr.toString());
@@ -49,7 +52,7 @@ parser code {:
     }
 
     void appendShortVarThing(Object ids, Object expression) {
-
+		//System.out.println(expression);
         ArrayList<String> idList = (ArrayList) ids;
 
         StringBuilder builder = new StringBuilder();
@@ -66,62 +69,97 @@ parser code {:
 
         outputWithLinebreak(builder.toString());
     }
+	String generateDecOutput(Object e, Object o){
+		String assem = (((Container) e).getAssem());
+		if(!assem.equals("")) assem += "\n";
+		return assem + o.toString() + " = " + (((Container) e).getVal());
+	}
+	String generateDecOutput(Object e, Object o, Object t){
+		String assem = (((Container) e).getAssem());
+		if(!assem.equals("")) assem += "\n";
+		return assem + o.toString() + t.toString() + " = " + (((Container) e).getVal());
+	}
 
+	Container generateExContainer(Object e, Object e2, Object op){
+		String assem1 = (((Container) e).getAssem());
+		String assem2 = (((Container) e2).getAssem());
+		String val = generateTempVariable();
+		if(!assem1.equals("")) assem1 += "\n";
+		assem1 += assem2;
+		if(!assem2.equals("")) assem1 += "\n";
+		assem1 += val + " =" + (((Container) e).getVal()) + op.toString() + (((Container) e2).getVal()) + ";\n";
+		return new Container(val, assem1);
+	}
+	Container generateSingleExContainer(Object e, Object op){
+		String assem = (((Container) e).getAssem());
+		String val = generateTempVariable();
+		if(!assem.equals("")) assem += "\n";
+		assem += val + " = " + op + (((Container) e).getVal());
+		return new Container(val, assem);
+	}
     String generateOutput() {
         return output.toString();
     }
 :}
 
 
-	
+
 /* Terminals (tokens returned by the scanner). */
-terminal			BREAK, DEFAULT, FUNC, CASE, STRUCT, ELSE, PACKAGE, SWITCH, CONST, IF, 
-					TYPE, FOR, IMPORT, RETURN, VAR, OR_OP, AND_OP, PLUS, MINUS, OPEN_PARAN, 
-					CLOSE_PARAN, OPEN_CURLY, CLOSE_CURLY, OPEN_SQUARE, CLOSE_SQUARE, 
-					SEMI_COLON, COMMA, DOT, COLON, COLON_EQUAL, EQUAL, CDOTS, ASTRISK, 
+terminal			BREAK, DEFAULT, FUNC, CASE, STRUCT, ELSE, PACKAGE, SWITCH, CONST, IF,
+					TYPE, FOR, IMPORT, RETURN, VAR, OR_OP, AND_OP, PLUS, MINUS, OPEN_PARAN,
+					CLOSE_PARAN, OPEN_CURLY, CLOSE_CURLY, OPEN_SQUARE, CLOSE_SQUARE,
+					SEMI_COLON, COMMA, DOT, COLON, COLON_EQUAL, EQUAL, CDOTS, ASTRISK,
 					SHIFT_LEFT, SHIFT_RIGHT, BAR, SLASH, EXCLAMATION, LESS_DASH, AMBERSAND,
 					PERCENT, INCREMENT, DECREMENT;
 terminal	String	IDENTIFIER, REL_OP, STRING_LIT, INTLIT;
 
 /* Non-terminals */
 nonterminal	sourceFile, packageClause, importDecls, importDecl, topLevelDecls,
-					topLevelDecl, packageName, importSpecs, importSpec, importPath, 
-					optionalSemiColon, declaration, functionDecl, methodDecl, 
-					constDecl, typeDecl, varDecl, constSpecs, constSpec, identifierList, 
-					expressionList, expression, binaryOp, primaryExpr, 
-					unaryExpr, unaryOp, mulOp, addOp, operand, selector, index, slice, 
-					arguments, literal, operandName, methodExpr, basicLit, functionLit, 
-					qualifiedIdent, function, signature, functionBody, parameters, result, 
-					type, parameterList, parameterDecl, block, statementList, statement, 
-					typeName, typeLit, arrayType, structType, functionType, arrayLength, 
-					elementType, sliceType, fieldDecls, fieldDecl, anonymousField, tag, 
-					typeSpecs, typeSpec, varSpecs, varSpec, shortVarDecl, functionName, 
-					methodName, receiver, receiverType, simpleStmt, returnStmt, breakStmt, 
-					ifStmt, switchStmt, forStmt, expressionStmt, incDecStmt, assignment, 
-					assignOp, exprSwitchStmt, initStmt, postStmt, condition, forClause, 
+					topLevelDecl, packageName, importSpecs, importSpec, importPath,
+					optionalSemiColon, declaration, functionDecl, methodDecl,
+					constDecl, typeDecl, varDecl, constSpecs, constSpec, identifierList,
+					expressionList, expression, binaryOp, primaryExpr,
+					unaryExpr, unaryOp, mulOp, addOp, operand, selector,
+					arguments, literal, operandName, methodExpr, basicLit, functionLit,
+					qualifiedIdent, function, signature, functionBody, parameters, result,
+					type, parameterList, parameterDecl, block, statementList, statement,
+					typeName, typeLit, arrayType, structType, functionType, arrayLength,
+					elementType, sliceType, fieldDecls, fieldDecl, anonymousField,
+					typeSpecs, typeSpec, varSpecs, varSpec, shortVarDecl, functionName,
+					methodName, receiver, receiverType, simpleStmt, returnStmt, breakStmt,
+					ifStmt, switchStmt, forStmt, expressionStmt, incDecStmt, assignment,
+					assignOp, exprSwitchStmt, initStmt, postStmt, condition, forClause,
 					exprCaseClauses, exprCaseClause, exprSwitchCase, compositeLit,
 					literalType, literalValue, elementList, keyedElement, key, fieldName,
 					element;
 
-
+precedence left COMMA;
+precedence left EQUAL, COLON_EQUAL;
 precedence left OR_OP, AND_OP, REL_OP;
-precedence left PLUS, MINUS, BAR;
+precedence left MINUS, PLUS, BAR;
+precedence left ASTRISK, SLASH, SHIFT_LEFT, SHIFT_RIGHT, PERCENT, AMBERSAND;
+
+/*
+precedence left OR_OP, AND_OP;
+precedence left REL_OP;
+precedence left PLUS, MINUS;
 precedence left ASTRISK, SLASH, SHIFT_LEFT, SHIFT_RIGHT, PERCENT, AMBERSAND;
 precedence left EXCLAMATION, LESS_DASH;
 precedence left OPEN_PARAN, CLOSE_PARAN;
 precedence left COMMA, SEMI_COLON;
 precedence left COLON;
-
+*/
 start with sourceFile;
 
 /* The grammar */
-sourceFile	::=	packageClause optionalSemiColon importDecls topLevelDecls
+sourceFile	::=	packageClause optionalSemiColon importDecls topLevelDecls:decs
 				{:
-				    RESULT = generateOutput();
+				    RESULT = decs;
+				    System.out.println(RESULT);
 				:}
 				| packageClause optionalSemiColon importDecls
 				{:
-				    RESULT = generateOutput();
+				    RESULT = "";
 				:};
 
 topLevelDecls	::=	topLevelDecl:dec topLevelDecls:decs
@@ -135,10 +173,12 @@ topLevelDecls	::=	topLevelDecl:dec topLevelDecls:decs
 
 topLevelDecl	::=	declaration:dec
 					{:
+						//System.out.println("Engz " + dec);
 						RESULT = dec;
 					:}
 					| functionDecl:fdec optionalSemiColon
 					{:
+						//System.out.println("Engz2 " + fdec);
 						RESULT = fdec;
 					:}
 					| methodDecl:mdec optionalSemiColon
@@ -152,11 +192,13 @@ declaration	::=	constDecl:dec SEMI_COLON
 				:}
 				| varDecl:dec SEMI_COLON
 				{:
-					RESULT = dec;				
+					//System.out.println("var: " + dec);
+					RESULT = dec;
 				:};
-				
+
 constDecl	::=	CONST constSpec:con
 				{:
+					//System.out.println("HNAL " + con);
 					RESULT = con;
 				:}
 				| CONST OPEN_PARAN constSpecs:cons CLOSE_PARAN
@@ -184,22 +226,23 @@ constSpec	::=	IDENTIFIER:id
 				:}
 				| IDENTIFIER:id EQUAL expression:exp
 				{:
-				    RESULT = exp;
-				    generateAssignmentStatement(id, exp);
+				    RESULT = generateDecOutput(exp, id);
 				:}
-				| IDENTIFIER:id type EQUAL expression:exp
+				| IDENTIFIER:id type:t EQUAL expression:exp
 				{:
-				    RESULT = exp;
-				    generateAssignmentStatement(id, exp);
+					//System.out.println(generateDecOutput(exp, id, t));
+				    RESULT = generateDecOutput(exp, id, t);
 				:};
-				
-				
+
+
 statement	::=	declaration:dec
 				{:
+					//System.out.println("Engz3 " + dec);
 					RESULT = dec;
 				:}
 				| simpleStmt:stat SEMI_COLON
 				{:
+					//System.out.println("Engz4 " + stat);
 					RESULT = stat;
 				:}
 				| returnStmt:ret SEMI_COLON
@@ -211,13 +254,15 @@ statement	::=	declaration:dec
 					RESULT = "";
 				:}
 				| block:bl optionalSemiColon
-				{:
+				{:				
 					RESULT = bl;
 				:}
 				| ifStmt:ifStat optionalSemiColon
 				{:
+					System.out.println("Engz12: " + ifStat);
+					RESULT = ifStat;
 				:}
-				| switchStmt optionalSemiColon
+				| switchStmt: optionalSemiColon
 				{:
 				:}
 				| forStmt optionalSemiColon
@@ -225,22 +270,27 @@ statement	::=	declaration:dec
 				:};
 
 
-simpleStmt	::= expressionStmt
+simpleStmt	::= expressionStmt:ex
 				{:
+					RESULT = ex;
 				:}
-				| incDecStmt
+				| incDecStmt:stat
 				{:
+					RESULT = stat;
 				:}
-				| assignment
+				| assignment:assign
 				{:
+					RESULT = (((Container) assign).getAssem());
 				:}
-				| shortVarDecl
+				| shortVarDecl:dec
 				{:
+					RESULT = dec;
 				:};
 
 
-expressionStmt	::= expression
+expressionStmt	::= expression:e
 					{:
+						RESULT = (((Container) e).getAssem());
 					:};
 
 incDecStmt	::= expression INCREMENT
@@ -256,26 +306,110 @@ assignment	::=	expressionList:l1 assignOp:op expressionList:l2
 				    // ArrayList<String> expList2 = (ArrayList) l2;
 
 				    // RESULT = l1.toString() + op.toString() + l2.toString();
+				    String val1 = (((Container) l1).getVal());
+				    if(val1.equals("")) RESULT = new Container("", "");
+				    else {
+					    String val2 = (((Container) l2).getVal());
+						String assemNew = (((Container) l2).getAssem()) + "\n" + val1 + op + val2 + ";\n";
+						RESULT = new Container(val2, assemNew);
+				    }
 				:};
 
 
-ifStmt	::=	IF expression block
+ifStmt	::=	IF expression:e block:bl
 			{:
+				Container con = (Container) e;
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
+				RESULT = "";
+				if(!con.getAssem().equals("")) {
+					RESULT += con.getAssem() + "\n"; 
+				}
+				RESULT += "If " + con.getVal() + " Goto " + con.getThenL();
+				RESULT += "\nGoto " + con.getElseL() + "\n";
+				RESULT += con.getThenL() + ":\n" + bl;
+				RESULT += con.getElseL() + ":";
 			:}
-			| IF simpleStmt SEMI_COLON expression block
+			| IF simpleStmt:stmt SEMI_COLON expression:e block:bl
 			{:
+				Container con = (Container) e;
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
+				RESULT = "";
+				if(!stmt.equals("")){
+					RESULT += stmt + "\n";
+				} 
+				if(!con.getAssem().equals("")) {
+					RESULT += con.getAssem() + "\n"; 
+				}
+				RESULT += "If " + con.getVal() + " Goto " + con.getThenL();
+				RESULT += "\nGoto " + con.getElseL() + "\n";
+				RESULT += con.getThenL() + ":\n" + bl;
+				RESULT += con.getElseL() + ":";
 			:}
-			| IF expression block ELSE ifStmt
+			| IF expression:e block:bl ELSE ifStmt:st
 			{:
+				Container con = (Container) e;
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
+				RESULT = "";
+				if(!con.getAssem().equals("")) {
+					RESULT += con.getAssem() + "\n"; 
+				}
+				RESULT += "If " + con.getVal() + " Goto " + con.getThenL();
+				RESULT += "\nGoto " + con.getElseL() + "\n";
+				RESULT += con.getThenL() + ":\n" + bl + "\n";
+				RESULT += "GoTo L" + con.getThenL() + "\n";
+				RESULT += con.getElseL() + ":\n" + st + "\nL" + con.getThenL() + ":";
 			:}
-			| IF expression block ELSE block
+			| IF expression:e block:bl1 ELSE block:bl2
 			{:
+				Container con = (Container) e;
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
+				RESULT = "";
+				if(!con.getAssem().equals("")) {
+					RESULT += con.getAssem() + "\n"; 
+				}
+				RESULT += "If " + con.getVal() + " Goto " + con.getThenL();
+				RESULT += "\nGoto " + con.getElseL() + "\n";
+				RESULT += con.getThenL() + ":\n" + bl1 + "\n";
+				RESULT += "GoTo L" + con.getThenL() + "\n"; 
+				RESULT += con.getElseL() + ":\n" + bl2 + "\nL" + con.getThenL() + ":";
 			:}
-			| IF simpleStmt SEMI_COLON expression block ELSE ifStmt
+			| IF simpleStmt:stmt SEMI_COLON expression:e block:bl ELSE ifStmt:st
 			{:
+				Container con = (Container) e;
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
+				RESULT = "";
+				if(!stmt.equals("")){
+					RESULT += stmt + "\n";
+				} 
+				if(!con.getAssem().equals("")) {
+					RESULT += con.getAssem() + "\n"; 
+				}
+				RESULT += "If " + con.getVal() + " Goto " + con.getThenL();
+				RESULT += "\nGoto " + con.getElseL() + "\n";
+				RESULT += con.getThenL() + ":\n" + bl + "\n" ;
+				RESULT += "GoTo L" + con.getThenL() + "\n";
+				RESULT += con.getElseL() + ":\n" + st + "\nL" + con.getThenL() + ":";
 			:}
-			| IF simpleStmt SEMI_COLON expression block ELSE block
+			| IF simpleStmt:stmt SEMI_COLON expression:e block:bl1 ELSE block:bl2
 			{:
+				Container con = (Container) e;
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
+				RESULT = "";
+				if(!stmt.equals("")){
+					RESULT += stmt + "\n";
+				} 
+				if(!con.getAssem().equals("")) {
+					RESULT += con.getAssem() + "\n"; 
+				}
+				RESULT += con.getThenL() + ":\n" + bl1 + "\n" ;
+				RESULT += "GoTo L" + con.getThenL() + "\n"; 
+				RESULT += con.getElseL() + ":\n" + bl2 + "\nL" + con.getThenL() + ":";
 			:};
 
 
@@ -301,7 +435,7 @@ exprSwitchStmt	::= SWITCH OPEN_CURLY exprCaseClauses CLOSE_CURLY
 exprCaseClauses	::=	exprCaseClause exprCaseClauses
 					{:
 					:}
-					| 
+					|
 					{:
 					:};
 
@@ -354,25 +488,37 @@ forClause	::=	initStmt SEMI_COLON condition SEMI_COLON postStmt
 				:};
 
 
-condition	::=	expression
+condition	::=	expression:e
 				{:
+					((Container) e).raiseFlag();
+					RESULT = e;
 				:};
 
-initStmt	::=	simpleStmt
+initStmt	::=	simpleStmt:ss
 				{:
+					RESULT = ss;
 				:};
 
 
-postStmt	::=	simpleStmt
+postStmt	::=	simpleStmt:ss
 				{:
+					RESULT = ss;
 				:};
 
 
 returnStmt	::=	RETURN
 				{:
+					RESULT = "return";
 				:}
-				| RETURN expressionList
+				| RETURN expressionList:e
 				{:
+					String assem = (((Container) e).getAssem());
+					RESULT = "return ";
+					if(assem.equals(""))
+						RESULT += (((Container) e).getVal());
+					else
+						RESULT += assem;
+					RESULT += ";";
 				:};
 
 
@@ -385,28 +531,26 @@ breakStmt	::=	BREAK
 
 identifierList	::=	IDENTIFIER:id
 					{:
-					    ArrayList<String> list = new ArrayList<String>();
-					    list.add(id.toString());
-					    RESULT = list;
+					    //ArrayList<String> list = new ArrayList<String>();
+					    //list.add(id.toString());
+					    RESULT = id;
 					:}
 					| IDENTIFIER:id COMMA identifierList:tail
 					{:
-                        ArrayList<String> list = (ArrayList) tail;
-                        list.add(id.toString());
-                        RESULT = list;
+                       // ArrayList<String> list = (ArrayList) tail;
+                       // list.add(id.toString());
+                        RESULT = id + "," + tail;
 					:};
 
 expressionList	::=	expression:e
 					{:
-					    ArrayList<String> expressionList = new ArrayList<String>();
-					    expressionList.add(e.toString());
-					    RESULT = expressionList;
+					    //ArrayList<String> expressionList = new ArrayList<String>();
+					    //expressionList.add(e.toString());
+					    RESULT = e;
 					:}
 					| expression:e COMMA expressionList:tail
 					{:
-                        ArrayList<String> expressionList = (ArrayList) tail;
-                        expressionList.add(e.toString());
-                        RESULT = expressionList;
+              RESULT = new Container(((Container) e).getVal() + "," + ((Container) tail).getVal(),"");
 					:};
 
 
@@ -414,159 +558,95 @@ expression	::=	unaryExpr:ue
 				{:
 				    RESULT = ue;
 				:}
-				| expression:el REL_OP:op expression:er
+				| expression:el binaryOp:op expression:er
 				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
-				:}
-				| expression:el OR_OP:op expression:er
-				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
-				:}
-				| expression:el AND_OP:op expression:er
-				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
-				:}
-				| expression:el PLUS:op expression:er
-				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
-				:}
-				| expression:el MINUS:op expression:er
-				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
-				:}
-				| expression:el ASTRISK:op expression:er
-				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
-				:}
-				| expression:el SLASH:op expression:er
-				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
-				:}
-				| expression:el PERCENT:op expression:er
-				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
-				:}
-				| expression:el SHIFT_LEFT:op expression:er
-				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
-				:}
-				| expression:el SHIFT_RIGHT:op expression:er
-				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
-				:}
-				| expression:el AMBERSAND:op expression:er
-				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
-				:}
-				| expression:el EXCLAMATION:op expression:er
-				{:
-				    String t = generateTempVariable();
-                    appendTACExpression(t, el, op, er);
-                    RESULT = t;
+					//System.out.println("Operator " + op.toString());
+                    RESULT = generateExContainer(el, er, op);
 				:};
-
 
 type	::= typeName
 			{:
+				RESULT = "";
 			:}
 			| typeLit
 			{:
+				RESULT = "";
 			:};
 
 
 typeName	::=	IDENTIFIER:id
 				{:
-				    RESULT = id;
+				    RESULT = "";
 				:};
 
 
 typeLit	::=	functionType
 			{:
+				RESULT = "";
 			:}
 			;
 
 
-tag	::= STRING_LIT
-		{:
-		:};
-
-
-
 functionType	::=	FUNC signature
 					{:
+						RESULT = "";
 					:};
 
 
-varDecl	::=	VAR varSpec 
+varDecl	::=	VAR varSpec:v
 			{:
+				RESULT = v;
 			:}
-			| VAR OPEN_PARAN varSpecs CLOSE_PARAN
+			| VAR OPEN_PARAN varSpecs:v CLOSE_PARAN
 			{:
+				RESULT = v;
 			:};
 
 
-varSpecs	::= varSpec SEMI_COLON varSpecs
+varSpecs	::= varSpec:v SEMI_COLON varSpecs:vs
 				{:
+					RESULT = v + "" + vs;
 				:}
-				| 
+				|
 				{:
+					RESULT = "";
 				:};
 
 varSpec	::= IDENTIFIER:var EQUAL expression:e
 			{:
-			    generateAssignmentStatement(var, e);
+				RESULT = generateDecOutput(e, var);
+			    //generateAssignmentStatement(var, e);
 			:}
-			| IDENTIFIER type
+			| IDENTIFIER:id type:ty
 			{:
+				RESULT = id + "" + ty;
 			:}
 			| IDENTIFIER:var type EQUAL expression:e
 			{:
-			    generateAssignmentStatement(var, e);
+			    RESULT = generateDecOutput(e, var);
 			:};
-			
 
 
-shortVarDecl	::= identifierList:ids	COLON_EQUAL	expression:e
+
+shortVarDecl	::= identifierList:ids	COLON_EQUAL expression:e
 					{:
 					   // This was a pretty annoying one -_-
-                       appendShortVarThing(ids, e);
+			    		RESULT = generateDecOutput(e, ids);
 					:};
 
 
-functionDecl	::= FUNC functionName function
+functionDecl	::= FUNC functionName:fName function:func
 					{:
-					    outputWithLinebreak("end_func;");
+					   RESULT = fName + ":\n" + func;
 					:}
 					| FUNC functionName signature
 					{:
-					    outputWithLinebreak("end_func;");
+						RESULT = "";
 					:};
 
 functionName	::= IDENTIFIER:fname
 					{:
-                        appendFunctionBegin(fname);
+						RESULT = fname;
 					:};
 
 
@@ -584,7 +664,7 @@ receiver	::= parameters
 					RESULT = "";
 				:};
 
-		
+
 methodName	::=	IDENTIFIER:id
 				{:
 					RESULT = id;
@@ -595,29 +675,21 @@ unaryExpr	::=	primaryExpr:pexp
 				{:
                     RESULT = pexp;
 				:}
-				| unaryOp unaryExpr:uexp
+				| unaryOp:uOp unaryExpr:uexp
 				{:
+					RESULT = generateSingleExContainer(uexp, uOp);
 				:};
 
 primaryExpr	::=	operand:op
 				{:
 				    RESULT = op;
 				:}
-				| primaryExpr:pexp selector:sel
-				{:
-				    RESULT = pexp.toString() + sel.toString();
-				:}
-				| primaryExpr index
-				{:
-				:}
-				| primaryExpr slice
-				{:
-				:}
 				| primaryExpr:pexp arguments:args
 				{:
                     String tmp = generateTempVariable();
-
-                    appendFunctionCall(tmp, pexp, args);
+					String assem = args + tmp + "= call " + (((Container) pexp).getVal()) + ";\n" + "pop_params;\n";
+                    //appendFunctionCall(tmp, pexp, args);
+					RESULT = new Container(tmp, assem);
 				:};
 
 
@@ -627,40 +699,19 @@ selector	::= DOT IDENTIFIER
 					RESULT = "";
 				:};
 
-index	::=	OPEN_SQUARE expression CLOSE_SQUARE
-			{:
-			:};
-
-slice	::=	OPEN_SQUARE COLON CLOSE_SQUARE
-			{:
-			:}
-			| OPEN_SQUARE expression COLON CLOSE_SQUARE
-			{:
-			:}
-			| OPEN_SQUARE COLON expression CLOSE_SQUARE
-			{:
-			:}
-			| OPEN_SQUARE expression COLON expression CLOSE_SQUARE
-			{:
-			:}
-			| OPEN_SQUARE COLON expression COLON expression CLOSE_SQUARE
-			{:
-			:}
-			| OPEN_SQUARE expression COLON expression COLON expression CLOSE_SQUARE
-			{:
-			:};
-
-
 arguments	::=	OPEN_PARAN CLOSE_PARAN
 				{:
-				    RESULT = new ArrayList<String>(); // Empty args
+				    RESULT = ""; // Empty args
 				:}
 				| OPEN_PARAN expressionList:args CLOSE_PARAN
 				{:
-				    RESULT = args;
+				    RESULT = "";
+            String argsS = (((Container) args).getVal());
+				    for(String s: argsS.split(",")) RESULT += "push_params: " + s +";\n";
 				:}
 				| OPEN_PARAN TYPE type COMMA expressionList CLOSE_PARAN
 				{:
+					RESULT = "";
 				:};
 
 
@@ -689,7 +740,7 @@ operand	::=	literal:l
 			:}
 			| methodExpr:mexpr
 			{:
-			    RESULT = mexpr;
+			    RESULT = new Container("1","1");
 			:}
 			| OPEN_PARAN expression:e CLOSE_PARAN
 			{:
@@ -702,92 +753,112 @@ literal	::=	basicLit:l
 			:}
 			| functionLit:funcLit
 			{:
+				RESULT = new Container(funcLit.toString(),"");
 			:}
 			| compositeLit
 			{:
+				RESULT = "";
 			:};
 
 
 compositeLit	::=	literalType literalValue
 					{:
+						RESULT = "";
 					:};
 
 literalType	::=	structType
 				{:
+					RESULT = "";
 				:}
 				| arrayType
 				{:
+					RESULT = "";
 				:}
 				| sliceType
 				{:
+					RESULT = "";
 				:}
 				| TYPE typeName
 				{:
+					RESULT = "";
 				:}
 				| OPEN_SQUARE CDOTS CLOSE_SQUARE elementType
 				{:
+					RESULT = "";
 				:};
 
 
 literalValue	::=	OPEN_CURLY CLOSE_CURLY
 					{:
+						RESULT = "";
 					:}
 					| OPEN_CURLY elementList CLOSE_CURLY
 					{:
+						RESULT = "";
 					:};
 
 
 elementList	::=	keyedElement
 				{:
+					RESULT = "";
 				:}
 				| keyedElement COMMA elementList
 				{:
+					RESULT = "";
 				:};
 
 
 keyedElement	::=	element
 					{:
+						RESULT = "";
 					:}
 					| key COLON element
 					{:
+						RESULT = "";
 					:};
 
 
 key	::=	fieldName
 		{:
+			RESULT = "";
 		:}
 		| literalValue
 		{:
+			RESULT = "";
 		:};
 
 fieldName	::= IDENTIFIER
 				{:
+					RESULT = "";
 				:};
 
 
 element	::= expression
 			{:
+				RESULT = "";
 			:}
 			| literalValue
 			{:
+				RESULT = "";
 			:};
 
 basicLit	::=	INTLIT:int_lit
 				{:
-				    RESULT = int_lit;
+					//System.out.println("HNA " + int_lit.toString());
+				    RESULT = new Container(int_lit.toString(),"");
 				:}
 				| STRING_LIT:s
 				{:
-				    RESULT = s;
+				    RESULT = new Container(s.toString(),"");
 				:};
 
 operandName	::=	IDENTIFIER:id
 				{:
-				    RESULT = id;
+				    RESULT = new Container(id.toString(),"");
 				:}
 				| qualifiedIdent:q_id
 				{:
-				    RESULT = q_id;
+				    RESULT = new Container(q_id.toString(),"");
 				:};
 
 
@@ -795,8 +866,8 @@ qualifiedIdent	::=	DOT packageName DOT IDENTIFIER:id
 					{:
 					    RESULT = id;
 					:};
-					
-					
+
+
 functionLit	::=	FUNC function
 				{:
 					RESULT = "";
@@ -821,7 +892,6 @@ signature	::=	parameters
 result	::=	parameters
 			{:
 				RESULT = "";
-
 			:}
 			| OPEN_PARAN type CLOSE_PARAN
 			{:
@@ -836,7 +906,7 @@ parameters	::=	OPEN_PARAN CLOSE_PARAN
 				| OPEN_PARAN parameterList CLOSE_PARAN
 				{:
 					RESULT = "";
-				:}; 
+				:};
 
 
 parameterList	::=	parameterDecl
@@ -845,7 +915,7 @@ parameterList	::=	parameterDecl
 					:}
 					| parameterDecl COMMA parameterList
 					{:
-						RESULT = "";					
+						RESULT = "";
 					:};
 
 
@@ -866,6 +936,7 @@ functionBody	::= block:b
 
 block	::= OPEN_CURLY statementList:statList CLOSE_CURLY
 			{:
+				//System.out.println("YALLA " + statList);
 				RESULT = statList;
 			:};
 
@@ -873,9 +944,9 @@ block	::= OPEN_CURLY statementList:statList CLOSE_CURLY
 statementList	::=	statement:stat statementList:statList
 					{:
 						RESULT = stat;
-						//if(!statList.equals("")) RESULT = RESULT + "\n" + statList; 
+						if(!statList.equals("")) RESULT = RESULT + "\n" + statList;
 					:}
-					| 
+					|
 					{:
 						RESULT = "";
 					:};
@@ -908,7 +979,7 @@ importSpecs	::=	importSpec optionalSemiColon importSpecs
 				{:
 					RESULT = "";
 				:}
-				| 
+				|
 				{:
 					RESULT = "";
 				:};
@@ -920,13 +991,13 @@ importSpec	::=	importPath:path
 				| DOT importPath:path
 				{:
 					RESULT = "." + path;
-				
+
 				:}
 				| packageName:pName importPath:path
 				{:
 					RESULT = pName + "" + path;
 				:};
-				
+
 importPath	::=	STRING_LIT:lit
 				{:
 					RESULT = lit;
@@ -940,9 +1011,11 @@ packageName	::=	IDENTIFIER:id
 
 optionalSemiColon	::=	SEMI_COLON
 						{:
+							RESULT = "";
 						:}
-						| 
+						|
 						{:
+							RESULT = "";
 						:};
 
 
@@ -956,93 +1029,92 @@ assignOp	::=	addOp:o EQUAL:e
 				:} %prec EQUAL
 				| EQUAL:e
 				{:
-				    RESULT = e;
+				    RESULT = " " + e.toString() + " ";
 				:};
 
 
 binaryOp	::= OR_OP:o
 				{:
-				    RESULT = o;
+				    RESULT = o.toString();
 				:}
 				| AND_OP:o
 				{:
-				    RESULT = o;
+				    RESULT = o.toString();
 				:}
 				| REL_OP:o
 				{:
-				    RESULT = o;
+				    RESULT = o.toString();
 				:}
 				| addOp:o
 				{:
-				    RESULT = o;
+				    RESULT = o.toString();
 				:}
 				| mulOp:o
 				{:
-				    RESULT = o;
+				    RESULT = o.toString();
 				:};
 
 addOp	::=	PLUS:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| MINUS:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| BAR:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:};
 
 
 mulOp	::=	ASTRISK:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| SLASH:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| SHIFT_LEFT:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| SHIFT_RIGHT:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| PERCENT:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| AMBERSAND:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:};
 
 
 unaryOp	::=	PLUS:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| MINUS:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| EXCLAMATION:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| ASTRISK:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| AMBERSAND:o
 			{:
-			    RESULT = o;
+			    RESULT = o.toString();
 			:}
 			| LESS_DASH:o
 			{:
-			    RESULT = o;
-			:};						
-						
+			    RESULT = o.toString();
+			:};
