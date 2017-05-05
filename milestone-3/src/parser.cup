@@ -170,10 +170,12 @@ constSpec	::=	IDENTIFIER
 				:}
 				| IDENTIFIER:id EQUAL expression:exp
 				{:
+				    RESULT = exp;
 				    generateAssignmentStatement(id, exp);
 				:}
 				| IDENTIFIER:id type EQUAL expression:exp
 				{:
+				    RESULT = exp;
 				    generateAssignmentStatement(id, exp);
 				:};
 				
