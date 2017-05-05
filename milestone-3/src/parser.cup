@@ -256,8 +256,9 @@ statement	::=	declaration:dec
 				| switchStmt: optionalSemiColon
 				{:
 				:}
-				| forStmt optionalSemiColon
+				| forStmt:s
 				{:
+					RESULT = s;
 				:};
 
 
@@ -444,35 +445,67 @@ exprSwitchCase	::=	CASE expressionList
 
 forStmt	::=	FOR block
 			{:
+				RESULT = "";
 			:}
 			| FOR condition block
 			{:
+				RESULT = "";
 			:}
-			| FOR forClause block
+			| FOR initStmt:s SEMI_COLON condition:c SEMI_COLON postStmt:p block:b
 			{:
+				Container con = (Container) c;
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
+				RESULT = "LOOP:\n"+s+";\n"+con.getThenL() + ":\n";
+				if(!con.getAssem().equals("")) {
+					RESULT += con.getAssem(); 
+				}
+				RESULT += "Ifz " +  con.getVal()+" Goto " + con.getElseL() + ";\n";
+				RESULT+= b+"\n";
+				RESULT += p + ";\n";
+				RESULT += "\nGoto " + con.getThenL() + "\n";
+				RESULT += con.getElseL() + ":\n";					
 			:};
 
 
-forClause	::=	initStmt SEMI_COLON condition SEMI_COLON postStmt
+forClause	::=	initStmt:s SEMI_COLON condition:c SEMI_COLON postStmt:p
 				{:
+					Container con = (Container) c;
+					con.setThenL(generateLabel());
+					con.setElseL(generateLabel());
+					RESULT = "LOOP:\n"+s+";\n"+con.getThenL() + ":\n";
+					if(!con.getAssem().equals("")) {
+						RESULT += con.getAssem(); 
+					}
+					RESULT += "Ifz " + con.getVal()+";";
+					RESULT += "\nGoto " + con.getElseL() + "\n";
+					RESULT += p + ";\n";
+					RESULT += "\nGoto " + con.getThenL() + "\n";
+					RESULT += con.getElseL() + ":\n";
 				:}
 				| SEMI_COLON condition SEMI_COLON postStmt
 				{:
+					RESULT = "";
 				:}
 				| initStmt SEMI_COLON SEMI_COLON postStmt
 				{:
+					RESULT = "";
 				:}
 				| initStmt SEMI_COLON condition optionalSemiColon
 				{:
+					RESULT = "";
 				:}
 				| SEMI_COLON SEMI_COLON postStmt
 				{:
+					RESULT = "";
 				:}
 				| SEMI_COLON condition optionalSemiColon
 				{:
+					RESULT = "";
 				:}
 				| initStmt SEMI_COLON optionalSemiColon
 				{:
+					RESULT = "";
 				:}
 				| SEMI_COLON optionalSemiColon
 				{:
