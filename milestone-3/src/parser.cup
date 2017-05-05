@@ -48,6 +48,24 @@ parser code {:
         }
     }
 
+    void appendShortVarThing(Object ids, Object expression) {
+        ArrayList<String> idList = (ArrayList) ids;
+
+        StringBuilder builder = new StringBuilder();
+
+        while(!idList.isEmpty()) {
+            builder.append(idList.remove(0));
+            builder.append(",");
+        }
+
+        // Remove last comma like a boss !
+        builder.setLength(builder.length() - 1);
+
+        builder.append(" = ").append(expression.toString());
+
+        outputWithLinebreak(builder.toString());
+    }
+
     String generateOutput() {
         return output.toString();
     }
@@ -343,11 +361,17 @@ breakStmt	::=	BREAK
 
 
 
-identifierList	::=	IDENTIFIER
+identifierList	::=	IDENTIFIER:id
 					{:
+					    ArrayList<String> list = new ArrayList<String>();
+					    list.add(id.toString());
+					    RESULT = list;
 					:}
-					| IDENTIFIER COMMA identifierList
+					| IDENTIFIER:id COMMA identifierList:tail
 					{:
+                        ArrayList<String> list = (ArrayList) tail;
+                        list.add(id.toString());
+                        RESULT = list;
 					:};
 
 expressionList	::=	expression:e
@@ -488,20 +512,24 @@ varSpecs	::= varSpec SEMI_COLON varSpecs
 				{:
 				:};
 
-varSpec	::= IDENTIFIER EQUAL expression
+varSpec	::= IDENTIFIER:var EQUAL expression:e
 			{:
+			    generateAssignmentStatement(var, e);
 			:}
 			| IDENTIFIER type
 			{:
 			:}
-			| IDENTIFIER type EQUAL expression
+			| IDENTIFIER:var type EQUAL expression:e
 			{:
+			    generateAssignmentStatement(var, e);
 			:};
 			
 
 
-shortVarDecl	::= identifierList	COLON_EQUAL	expression
+shortVarDecl	::= identifierList:ids	COLON_EQUAL	expression:e
 					{:
+					   // This was a pretty annoying one -_-
+                       appendShortVarThing(ids, e);
 					:};
 
 
