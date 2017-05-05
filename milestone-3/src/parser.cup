@@ -30,11 +30,11 @@ parser code {:
     }
 
     void appendFunctionCall(Object tempName, Object name, Object args) {
-        ArrayList<String> args = (ArrayList) args;
+        ArrayList<String> arguments = (ArrayList) args;
 
         // arguments to push before call
-        if(!args.isEmpty) {
-            for(String arg: args) {
+        if(!arguments.isEmpty) {
+            for(String arg: arguments) {
                 outputWithLinebreak(String.format("push_params: %s", arg.toString()));
             }
         }
@@ -43,7 +43,7 @@ parser code {:
         outputWithLinebreak(String.format("%s= call %s", tempName.toString(), name.toString()));
 
         // pop args if any
-        if(!args.isEmpty) {
+        if(!arguments.isEmpty) {
             outputWithLinebreak("pop_params;");
         }
     }
