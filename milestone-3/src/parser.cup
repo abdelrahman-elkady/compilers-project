@@ -171,15 +171,16 @@ constDecl	::=	CONST constSpec:con
 
 constSpecs	::=	constSpec:con SEMI_COLON constSpecs:cons
 				{:
-					RESULT = con + cons;
+					RESULT = con + "" + cons;
 				:}
 				| constSpec:con SEMI_COLON
 				{:
 					RESULT = con;
 				:};
 
-constSpec	::=	IDENTIFIER
+constSpec	::=	IDENTIFIER:id
 				{:
+					RESULT = id;
 				:}
 				| IDENTIFIER:id EQUAL expression:exp
 				{:
@@ -193,22 +194,27 @@ constSpec	::=	IDENTIFIER
 				:};
 				
 				
-statement	::=	declaration
+statement	::=	declaration:dec
 				{:
+					RESULT = dec;
 				:}
-				| simpleStmt SEMI_COLON
+				| simpleStmt:stat SEMI_COLON
 				{:
+					RESULT = stat;
 				:}
-				| returnStmt SEMI_COLON
+				| returnStmt:ret SEMI_COLON
 				{:
+					RESULT = ret;
 				:}
-				| breakStmt SEMI_COLON
+				| breakStmt:br SEMI_COLON
 				{:
+					RESULT = "";
 				:}
-				| block optionalSemiColon
+				| block:bl optionalSemiColon
 				{:
+					RESULT = bl;
 				:}
-				| ifStmt optionalSemiColon
+				| ifStmt:ifStat optionalSemiColon
 				{:
 				:}
 				| switchStmt optionalSemiColon
@@ -372,6 +378,7 @@ returnStmt	::=	RETURN
 
 breakStmt	::=	BREAK
 				{:
+					RESULT = "";
 				:};
 
 
@@ -565,18 +572,22 @@ functionName	::= IDENTIFIER:fname
 
 methodDecl	::= FUNC receiver methodName function
 				{:
+					RESULT = "";
 				:}
 				| FUNC receiver methodName signature
 				{:
+					RESULT = "";
 				:};
 
 receiver	::= parameters
 				{:
+					RESULT = "";
 				:};
 
 		
-methodName	::=	IDENTIFIER
+methodName	::=	IDENTIFIER:id
 				{:
+					RESULT = id;
 				:};
 
 
@@ -613,6 +624,7 @@ primaryExpr	::=	operand:op
 
 selector	::= DOT IDENTIFIER
 				{:
+					RESULT = "";
 				:};
 
 index	::=	OPEN_SQUARE expression CLOSE_SQUARE
@@ -654,14 +666,17 @@ arguments	::=	OPEN_PARAN CLOSE_PARAN
 
 methodExpr	::=	DOT receiverType DOT methodName
 				{:
+					RESULT = "";
 				:};
 
 
 receiverType	::=	OPEN_PARAN ASTRISK typeName CLOSE_PARAN
 					{:
+						RESULT = "";
 					:}
 					| OPEN_PARAN typeName CLOSE_PARAN
 					{:
+						RESULT = "";
 					:};
 
 operand	::=	literal:l
@@ -685,7 +700,7 @@ literal	::=	basicLit:l
 			{:
 			    RESULT = l;
 			:}
-			| functionLit
+			| functionLit:funcLit
 			{:
 			:}
 			| compositeLit
@@ -784,110 +799,142 @@ qualifiedIdent	::=	DOT packageName DOT IDENTIFIER:id
 					
 functionLit	::=	FUNC function
 				{:
+					RESULT = "";
 				:};
 
 
-function	::=	signature functionBody
+function	::=	signature functionBody:funcBody
 				{:
+					RESULT = "begin_func;\n" + funcBody + "\nend_func;";
 				:};
 
 signature	::=	parameters
 				{:
+					RESULT = "";
 				:}
 				| parameters result
 				{:
+					RESULT = "";
 				:};
 
 
 result	::=	parameters
 			{:
+				RESULT = "";
+
 			:}
 			| OPEN_PARAN type CLOSE_PARAN
 			{:
+				RESULT = "";
 			:};
 
 parameters	::=	OPEN_PARAN CLOSE_PARAN
 				{:
+					RESULT = "";
+
 				:}
 				| OPEN_PARAN parameterList CLOSE_PARAN
 				{:
+					RESULT = "";
 				:}; 
 
 
 parameterList	::=	parameterDecl
 					{:
+						RESULT = "";
 					:}
 					| parameterDecl COMMA parameterList
 					{:
+						RESULT = "";					
 					:};
 
 
 parameterDecl	::= identifierList type
 					{:
+						RESULT = "";
 					:}
 					| identifierList CDOTS type
 					{:
+						RESULT = "";
 					:};
 
-functionBody	::= block
+functionBody	::= block:b
 					{:
+						RESULT = b;
 					:};
 
 
-block	::= OPEN_CURLY statementList CLOSE_CURLY
+block	::= OPEN_CURLY statementList:statList CLOSE_CURLY
 			{:
+				RESULT = statList;
 			:};
 
 
-statementList	::=	statement statementList
+statementList	::=	statement:stat statementList:statList
 					{:
+						RESULT = stat;
+						//if(!statList.equals("")) RESULT = RESULT + "\n" + statList; 
 					:}
 					| 
 					{:
+						RESULT = "";
 					:};
 
 packageClause	::=	PACKAGE packageName
 					{:
+						RESULT = "";
 					:};
 
 
 importDecls	::=	importDecl optionalSemiColon importDecls
 				{:
+					RESULT = "";
 				:}
 				|
 				{:
+					RESULT = "";
 				:};
 
 importDecl	::=	IMPORT	importSpec
 				{:
+					RESULT = "";
 				:}
 				| IMPORT OPEN_PARAN importSpecs CLOSE_PARAN
 				{:
+					RESULT = "";
 				:};
 
 importSpecs	::=	importSpec optionalSemiColon importSpecs
 				{:
+					RESULT = "";
 				:}
 				| 
 				{:
+					RESULT = "";
 				:};
 
-importSpec	::=	importPath
+importSpec	::=	importPath:path
 				{:
+					RESULT = path;
 				:}
-				| DOT importPath
+				| DOT importPath:path
 				{:
+					RESULT = "." + path;
+				
 				:}
-				| packageName importPath
+				| packageName:pName importPath:path
 				{:
+					RESULT = pName + "" + path;
 				:};
 				
-importPath	::=	STRING_LIT
+importPath	::=	STRING_LIT:lit
 				{:
+					RESULT = lit;
 				:};
 
-packageName	::=	IDENTIFIER
+packageName	::=	IDENTIFIER:id
 				{:
+					RESULT = id;
 				:};
 
 
