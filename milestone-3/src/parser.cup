@@ -29,6 +29,25 @@ parser code {:
         outputWithLinebreak("begin_func;");
     }
 
+    void appendFunctionCall(Object tempName, Object name, Object args) {
+        ArrayList<String> args = (ArrayList) args;
+
+        // arguments to push before call
+        if(!args.isEmpty) {
+            for(String arg: args) {
+                outputWithLinebreak(String.format("push_params: %s", arg.toString()));
+            }
+        }
+
+        // Call the function, assign to the temp var
+        outputWithLinebreak(String.format("%s= call %s", tempName.toString(), name.toString()));
+
+        // pop args if any
+        if(!args.isEmpty) {
+            outputWithLinebreak("pop_params;");
+        }
+    }
+
     String generateOutput() {
         return output.toString();
     }
@@ -534,8 +553,11 @@ primaryExpr	::=	operand:op
 				| primaryExpr slice
 				{:
 				:}
-				| primaryExpr arguments
+				| primaryExpr:pexp arguments:args
 				{:
+                    String tmp = generateTempVariable();
+
+                    appendFunctionCall(tmp, pexp, args);
 				:};
 
 
