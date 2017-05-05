@@ -33,7 +33,7 @@ parser code {:
         ArrayList<String> arguments = (ArrayList) args;
 
         // arguments to push before call
-        if(!arguments.isEmpty) {
+        if(!arguments.isEmpty()) {
             for(String arg: arguments) {
                 outputWithLinebreak(String.format("push_params: %s", arg.toString()));
             }
@@ -43,7 +43,7 @@ parser code {:
         outputWithLinebreak(String.format("%s= call %s", tempName.toString(), name.toString()));
 
         // pop args if any
-        if(!arguments.isEmpty) {
+        if(!arguments.isEmpty()) {
             outputWithLinebreak("pop_params;");
         }
     }
