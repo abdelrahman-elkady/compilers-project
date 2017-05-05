@@ -4,7 +4,7 @@ import java.util.ArrayList;
 parser code {:
     StringBuilder output = new StringBuilder("");
     int tempVariableCounter = 0;
-
+	int labelCounter = 0;
     void outputWithLinebreak(String str) {
         output.append(str);
         output.append(System.getProperty("line.separator"));
@@ -124,46 +124,58 @@ sourceFile	::=	packageClause optionalSemiColon importDecls topLevelDecls
 				    RESULT = generateOutput();
 				:};
 
-topLevelDecls	::=	topLevelDecl topLevelDecls
+topLevelDecls	::=	topLevelDecl:dec topLevelDecls:decs
 					{:
+						RESULT = dec + "\n" + decs;
 					:}
-					| topLevelDecl
+					| topLevelDecl:dec
 					{:
+						RESULT = dec;
 					:};
 
-topLevelDecl	::=	declaration 
+topLevelDecl	::=	declaration:dec
 					{:
+						RESULT = dec;
 					:}
-					| functionDecl optionalSemiColon
+					| functionDecl:fdec optionalSemiColon
 					{:
+						RESULT = fdec;
 					:}
-					| methodDecl optionalSemiColon
+					| methodDecl:mdec optionalSemiColon
 					{:
+						RESULT = mdec;
 					:};
 
-declaration	::=	constDecl SEMI_COLON
+declaration	::=	constDecl:dec SEMI_COLON
 				{:
+					RESULT = dec;
 				:}
-				| varDecl SEMI_COLON
+				| varDecl:dec SEMI_COLON
 				{:
+					RESULT = dec;				
 				:};
 				
-constDecl	::=	CONST constSpec
+constDecl	::=	CONST constSpec:con
 				{:
+					RESULT = con;
 				:}
-				| CONST OPEN_PARAN constSpecs CLOSE_PARAN
+				| CONST OPEN_PARAN constSpecs:cons CLOSE_PARAN
 				{:
+					RESULT = cons;
 				:}
 				| CONST OPEN_PARAN CLOSE_PARAN
 				{:
+					RESULT = "";
 				:};
 
 
-constSpecs	::=	constSpec SEMI_COLON constSpecs
+constSpecs	::=	constSpec:con SEMI_COLON constSpecs:cons
 				{:
+					RESULT = con + cons;
 				:}
-				| constSpec SEMI_COLON
+				| constSpec:con SEMI_COLON
 				{:
+					RESULT = con;
 				:};
 
 constSpec	::=	IDENTIFIER
