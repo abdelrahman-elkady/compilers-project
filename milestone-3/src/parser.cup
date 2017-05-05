@@ -310,12 +310,12 @@ assignment	::=	expressionList:l1 assignOp:op expressionList:l2
 ifStmt	::=	IF expression:e block:bl
 			{:
 				Container con = (Container) e;
-				con.setThenL(generateLabel());
-				con.setElseL(generateLabel());
 				RESULT = "";
 				if(!con.getAssem().equals("")) {
 					RESULT += con.getAssem() + "\n"; 
 				}
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
 				RESULT += "If " + con.getVal() + " Goto " + con.getThenL();
 				RESULT += "\nGoto " + con.getElseL() + "\n";
 				RESULT += con.getThenL() + ":\n" + bl;
@@ -324,8 +324,6 @@ ifStmt	::=	IF expression:e block:bl
 			| IF simpleStmt:stmt SEMI_COLON expression:e block:bl
 			{:
 				Container con = (Container) e;
-				con.setThenL(generateLabel());
-				con.setElseL(generateLabel());
 				RESULT = "";
 				if(!stmt.equals("")){
 					RESULT += stmt + "\n";
@@ -333,6 +331,8 @@ ifStmt	::=	IF expression:e block:bl
 				if(!con.getAssem().equals("")) {
 					RESULT += con.getAssem() + "\n"; 
 				}
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
 				RESULT += "If " + con.getVal() + " Goto " + con.getThenL();
 				RESULT += "\nGoto " + con.getElseL() + "\n";
 				RESULT += con.getThenL() + ":\n" + bl;
@@ -341,12 +341,12 @@ ifStmt	::=	IF expression:e block:bl
 			| IF expression:e block:bl ELSE ifStmt:st
 			{:
 				Container con = (Container) e;
-				con.setThenL(generateLabel());
-				con.setElseL(generateLabel());
 				RESULT = "";
 				if(!con.getAssem().equals("")) {
 					RESULT += con.getAssem() + "\n"; 
 				}
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());	
 				RESULT += "If " + con.getVal() + " Goto " + con.getThenL();
 				RESULT += "\nGoto " + con.getElseL() + "\n";
 				RESULT += con.getThenL() + ":\n" + bl + "\n";
@@ -356,12 +356,12 @@ ifStmt	::=	IF expression:e block:bl
 			| IF expression:e block:bl1 ELSE block:bl2
 			{:
 				Container con = (Container) e;
-				con.setThenL(generateLabel());
-				con.setElseL(generateLabel());
 				RESULT = "";
 				if(!con.getAssem().equals("")) {
 					RESULT += con.getAssem() + "\n"; 
 				}
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
 				RESULT += "If " + con.getVal() + " Goto " + con.getThenL();
 				RESULT += "\nGoto " + con.getElseL() + "\n";
 				RESULT += con.getThenL() + ":\n" + bl1 + "\n";
@@ -371,12 +371,12 @@ ifStmt	::=	IF expression:e block:bl
 			| IF simpleStmt:stmt SEMI_COLON expression:e block:bl ELSE ifStmt:st
 			{:
 				Container con = (Container) e;
-				con.setThenL(generateLabel());
-				con.setElseL(generateLabel());
 				RESULT = "";
 				if(!stmt.equals("")){
 					RESULT += stmt + "\n";
 				} 
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
 				if(!con.getAssem().equals("")) {
 					RESULT += con.getAssem() + "\n"; 
 				}
@@ -389,8 +389,6 @@ ifStmt	::=	IF expression:e block:bl
 			| IF simpleStmt:stmt SEMI_COLON expression:e block:bl1 ELSE block:bl2
 			{:
 				Container con = (Container) e;
-				con.setThenL(generateLabel());
-				con.setElseL(generateLabel());
 				RESULT = "";
 				if(!stmt.equals("")){
 					RESULT += stmt + "\n";
@@ -398,6 +396,8 @@ ifStmt	::=	IF expression:e block:bl
 				if(!con.getAssem().equals("")) {
 					RESULT += con.getAssem() + "\n"; 
 				}
+				con.setThenL(generateLabel());
+				con.setElseL(generateLabel());
 				RESULT += con.getThenL() + ":\n" + bl1 + "\n" ;
 				RESULT += "GoTo L" + con.getThenL() + "\n"; 
 				RESULT += con.getElseL() + ":\n" + bl2 + "\nL" + con.getThenL() + ":";
