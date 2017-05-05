@@ -49,6 +49,7 @@ parser code {:
     }
 
     void appendShortVarThing(Object ids, Object expression) {
+
         ArrayList<String> idList = (ArrayList) ids;
 
         StringBuilder builder = new StringBuilder();
@@ -663,8 +664,9 @@ operand	::=	literal:l
 			{:
 			    RESULT = mexpr;
 			:}
-			| OPEN_PARAN expression CLOSE_PARAN
+			| OPEN_PARAN expression:e CLOSE_PARAN
 			{:
+			    RESULT = e;
 			:};
 
 literal	::=	basicLit:l
