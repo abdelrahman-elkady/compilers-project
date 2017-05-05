@@ -140,16 +140,7 @@ precedence left EXCLAMATION, LESS_DASH;
 precedence left OPEN_PARAN, CLOSE_PARAN;
 precedence left COMMA, SEMI_COLON;
 precedence left COLON;
-/*
-precedence left OR_OP, AND_OP;
-precedence left REL_OP;
-precedence left PLUS, MINUS;
-precedence left ASTRISK, SLASH, SHIFT_LEFT, SHIFT_RIGHT, PERCENT, AMBERSAND;
-precedence left EXCLAMATION, LESS_DASH;
-precedence left OPEN_PARAN, CLOSE_PARAN;
-precedence left COMMA, SEMI_COLON;
-precedence left COLON;
-*/
+
 start with sourceFile;
 
 /* The grammar */
@@ -604,12 +595,7 @@ expression	::=	unaryExpr:ue
 				| expression:el EXCLAMATION:op expression:er
 				{:
                     RESULT = generateExContainer(el, er, op);
-                :}
-				| expression:el binaryOp:op expression:er
-				{:
-					//System.out.println("Operator " + op.toString());
-                    RESULT = generateExContainer(el, er, op);
-				:};
+                :};
 
 type	::= typeName
 			{:
